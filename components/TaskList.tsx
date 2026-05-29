@@ -1,6 +1,8 @@
 'use client';
 
 import { AnimatePresence } from 'framer-motion';
+import { DndContext, closestCenter, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
+import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { Task } from '@/types/task';
 import TaskCard from './TaskCard';
 
@@ -8,9 +10,19 @@ interface Props {
   tasks: Task[];
   onToggle: (id: string) => void;
   onDelete: (id: string) => void;
+  onReorder: (activeId: string, overId: string) => void;
 }
 
-export default function TaskList({ tasks, onToggle, onDelete }: Props) {
+export default function TaskList({ tasks, onToggle, onDelete, onReorder }: Props) {
+  const sensors = useSensors(useSensor(PointerSensor));
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      onReorder(String(active.id), String(over.id));
+    }
+  };
+
   if (tasks.length === 0) {
     return (
       <div className="flex flex-col items-center py-10 gap-2">
@@ -24,17 +36,19 @@ export default function TaskList({ tasks, onToggle, onDelete }: Props) {
   }
 
   return (
-    <div>
-      <AnimatePresence initial={false}>
-        {tasks.map(task => (
-          <TaskCard
-            key={task.id}
-            task={task}
-            onToggle={onToggle}
-            onDelete={onDelete}
-          />
-        ))}
-      </AnimatePresence>
-    </div>
+    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+      <SortableContext items={tasks.map(t => t.id)} strategy={verticalListSortingStrategy}>
+        <AnimatePresence initial={false}>
+          {tasks.map(task => (
+            <TaskCard
+              key={task.id}
+              task={task}
+              onToggle={onToggle}
+              onDelete={onDelete}
+            />
+          ))}
+        </AnimatePresence>
+      </SortableContext>
+    </DndContext>
   );
 }
