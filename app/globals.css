@@ -1,6 +1,11 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+  --color-brand: #534AB7;
+  --color-brand-light: #EEEDFE;
+  --color-brand-border: #AFA9EC;
+  --color-brand-text: #3C3489;
+}
 
 @layer base {
   * {
