@@ -1,0 +1,11 @@
+export type Priority = 'high' | 'medium' | 'low';
+
+export type Filter = 'all' | 'active' | 'completed';
+
+export interface Task {
+  id: string;
+  text: string;
+  completed: boolean;
+  priority: Priority;
+  createdAt: number;
+}
