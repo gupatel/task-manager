@@ -1,5 +1,7 @@
 'use client';
 
+import { useEffect, useRef } from 'react'; // ← add useEffect, useRef
+import confetti from 'canvas-confetti';    // ← add this
 import { useTasks } from '@/hooks/useTasks';
 import TaskInput from '@/components/TaskInput';
 import FilterBar from '@/components/FilterBar';
@@ -20,6 +22,25 @@ export default function Home() {
     reorderTasks,
     editTask,
   } = useTasks();
+
+  const prevRemainingRef = useRef(remainingCount);  // ← add this
+
+  // ← add this effect
+  useEffect(() => {
+    if (
+      totalCount > 0 &&
+      remainingCount === 0 &&
+      prevRemainingRef.current !== 0
+    ) {
+      confetti({
+        particleCount: 120,
+        spread: 80,
+        origin: { y: 0.6 },
+        colors: ['#14b8a6', '#f59e0b', '#6366f1', '#ec4899', '#10b981'],
+      });
+    }
+    prevRemainingRef.current = remainingCount;
+  }, [remainingCount, totalCount]);
 
   const counts = {
     all: totalCount,
@@ -46,7 +67,6 @@ export default function Home() {
           onReorder={reorderTasks}
           onEdit={editTask}
         />
-
         <div className="flex items-center justify-between mt-4 pt-3 border-t border-gray-100">
           <span className="text-xs text-gray-400">
             {totalCount - remainingCount} of {totalCount} completed
