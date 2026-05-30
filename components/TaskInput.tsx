@@ -29,13 +29,13 @@ export default function TaskInput({ onAdd }: Props) {
         onKeyDown={e => e.key === 'Enter' && handleAdd()}
         placeholder="Add a new task..."
         autoComplete="off"
-        className="w-full h-9 px-3 text-sm border border-gray-200 rounded-lg outline-none focus:border-brand focus:ring-1 focus:ring-brand"
+        className="w-full h-9 px-3 text-sm border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:placeholder-gray-400 rounded-lg outline-none focus:border-brand focus:ring-1 focus:ring-brand"
       />
       <div className="flex gap-2">
         <select
           value={priority}
           onChange={e => setPriority(e.target.value as Priority)}
-          className="flex-1 h-9 px-2 text-sm border border-gray-200 rounded-lg outline-none focus:border-brand"
+          className="flex-1 h-9 px-2 text-sm border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded-lg outline-none focus:border-brand"
         >
           <option value="high">High</option>
           <option value="medium">Medium</option>
@@ -45,7 +45,7 @@ export default function TaskInput({ onAdd }: Props) {
           type="date"
           value={dueDate}
           onChange={e => setDueDate(e.target.value)}
-          className="flex-1 h-9 px-3 text-sm border border-gray-200 rounded-lg outline-none focus:border-brand text-gray-500"
+          className="flex-1 h-9 px-3 text-sm border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-500 rounded-lg outline-none focus:border-brand"
         />
         <button
           onClick={handleAdd}

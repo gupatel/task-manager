@@ -1,12 +1,13 @@
 'use client';
 
-import { useEffect, useRef } from 'react'; // ← add useEffect, useRef
-import confetti from 'canvas-confetti';    // ← add this
+import { useEffect, useRef } from 'react';
+import confetti from 'canvas-confetti';
 import { useTasks } from '@/hooks/useTasks';
 import TaskInput from '@/components/TaskInput';
 import FilterBar from '@/components/FilterBar';
 import TaskList from '@/components/TaskList';
 import ProgressBar from '@/components/ProgressBar';
+import ThemeToggle from '@/components/ThemeToggle';
 
 export default function Home() {
   const {
@@ -23,15 +24,10 @@ export default function Home() {
     editTask,
   } = useTasks();
 
-  const prevRemainingRef = useRef(remainingCount);  // ← add this
+  const prevRemainingRef = useRef(remainingCount);
 
-  // ← add this effect
   useEffect(() => {
-    if (
-      totalCount > 0 &&
-      remainingCount === 0 &&
-      prevRemainingRef.current !== 0
-    ) {
+    if (totalCount > 0 && remainingCount === 0 && prevRemainingRef.current !== 0) {
       confetti({
         particleCount: 120,
         spread: 80,
@@ -49,13 +45,16 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-gray-50 flex items-start sm:items-center justify-center p-4 pt-8 sm:pt-4">
-      <div className="w-full max-w-lg bg-white rounded-2xl border border-gray-100 p-4 sm:p-6">
+    <main className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-start sm:items-center justify-center p-4 pt-8 sm:pt-4 transition-colors duration-200">
+      <div className="w-full max-w-lg bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-4 sm:p-6">
         <div className="flex items-center justify-between mb-5">
-          <h1 className="text-lg sm:text-xl font-semibold text-gray-800">My tasks</h1>
-          <span className="text-xs bg-brand-light text-brand-text px-3 py-1 rounded-full">
-            {remainingCount} remaining
-          </span>
+          <h1 className="text-lg sm:text-xl font-semibold text-gray-800 dark:text-gray-100">My tasks</h1>
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <span className="text-xs bg-brand-light text-brand-text px-3 py-1 rounded-full">
+              {remainingCount} remaining
+            </span>
+          </div>
         </div>
         <ProgressBar total={totalCount} completed={totalCount - remainingCount} />
         <TaskInput onAdd={addTask} />
@@ -67,8 +66,8 @@ export default function Home() {
           onReorder={reorderTasks}
           onEdit={editTask}
         />
-        <div className="flex items-center justify-between mt-4 pt-3 border-t border-gray-100">
-          <span className="text-xs text-gray-400">
+        <div className="flex items-center justify-between mt-4 pt-3 border-t border-gray-100 dark:border-gray-700">
+          <span className="text-xs text-gray-400 dark:text-gray-500">
             {totalCount - remainingCount} of {totalCount} completed
           </span>
           <button
