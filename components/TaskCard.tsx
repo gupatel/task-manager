@@ -17,6 +17,14 @@ const priorityStyles = {
   low: 'bg-green-50 text-green-800',
 };
 
+function isOverdue(dateStr: string): boolean {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const [year, month, day] = dateStr.split('-').map(Number);
+  const due = new Date(year, month - 1, day);
+  return due < today;
+}
+
 function formatDue(dateStr: string) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -47,7 +55,11 @@ export default function TaskCard({ task, onToggle, onDelete }: Props) {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, x: -20 }}
       transition={{ duration: 0.18 }}
-      className="flex items-center gap-2 sm:gap-3 py-3 border-b border-gray-100 last:border-none"
+      className={`flex items-center gap-2 sm:gap-3 py-3 border-b border-gray-100 last:border-none border-l-4 transition-colors
+      ${!task.completed && task.dueDate && isOverdue(task.dueDate)
+        ? 'border-l-red-400 pl-2'
+        : 'border-l-transparent'
+      }`}
     >
       <button
         {...attributes}

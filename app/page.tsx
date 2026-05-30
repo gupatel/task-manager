@@ -20,6 +20,12 @@ export default function Home() {
     reorderTasks,
   } = useTasks();
 
+  const counts = {
+    all: totalCount,
+    active: remainingCount,
+    completed: totalCount - remainingCount,
+  };
+
   return (
     <main className="min-h-screen bg-gray-50 flex items-start sm:items-center justify-center p-4 pt-8 sm:pt-4">
       <div className="w-full max-w-lg bg-white rounded-2xl border border-gray-100 p-4 sm:p-6">
@@ -31,7 +37,7 @@ export default function Home() {
         </div>
         <ProgressBar total={totalCount} completed={totalCount - remainingCount} />
         <TaskInput onAdd={addTask} />
-        <FilterBar current={filter} onChange={setFilter} />
+        <FilterBar current={filter} onChange={setFilter} counts={counts} />
         <TaskList
           tasks={tasks}
           onToggle={toggleTask}

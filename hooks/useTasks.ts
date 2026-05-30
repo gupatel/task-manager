@@ -51,10 +51,25 @@ export function useTasks() {
     });
   };
 
-  const filteredTasks = tasks.filter(t => {
+  const filteredTasks = tasks
+  .filter(t => {
     if (filter === 'active') return !t.completed;
     if (filter === 'completed') return t.completed;
     return true;
+  })
+  .sort((a, b) => {
+    // completed tasks always go to bottom
+    if (a.completed !== b.completed) return a.completed ? 1 : -1;
+
+    // both have no due date — sort by createdAt
+    if (!a.dueDate && !b.dueDate) return a.createdAt - b.createdAt;
+
+    // no due date goes after tasks with due date
+    if (!a.dueDate) return 1;
+    if (!b.dueDate) return -1;
+
+    // both have due dates — sort earliest first (overdue at top)
+    return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
   });
 
   const remainingCount = tasks.filter(t => !t.completed).length;
