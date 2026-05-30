@@ -4,6 +4,7 @@ import { useTasks } from '@/hooks/useTasks';
 import TaskInput from '@/components/TaskInput';
 import FilterBar from '@/components/FilterBar';
 import TaskList from '@/components/TaskList';
+import ProgressBar from '@/components/ProgressBar';
 
 export default function Home() {
   const {
@@ -28,7 +29,7 @@ export default function Home() {
             {remainingCount} remaining
           </span>
         </div>
-
+        <ProgressBar total={totalCount} completed={totalCount - remainingCount} />
         <TaskInput onAdd={addTask} />
         <FilterBar current={filter} onChange={setFilter} />
         <TaskList
