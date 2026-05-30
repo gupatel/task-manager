@@ -18,6 +18,7 @@ export default function Home() {
     remainingCount,
     totalCount,
     reorderTasks,
+    editTask,
   } = useTasks();
 
   const counts = {
@@ -43,6 +44,7 @@ export default function Home() {
           onToggle={toggleTask}
           onDelete={deleteTask}
           onReorder={reorderTasks}
+          onEdit={editTask}
         />
 
         <div className="flex items-center justify-between mt-4 pt-3 border-t border-gray-100">

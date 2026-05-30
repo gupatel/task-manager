@@ -4,11 +4,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Task } from '@/types/task';
+import { useState, useRef } from 'react';
 
 interface Props {
   task: Task;
   onToggle: (id: string) => void;
   onDelete: (id: string) => void;
+  onEdit: (id: string, newText: string, newDueDate?: string) => void;
 }
 
 const priorityStyles = {
@@ -37,13 +39,28 @@ function formatDue(dateStr: string) {
   return { label: `Due ${due.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`, color: 'text-gray-400' };
 }
 
-export default function TaskCard({ task, onToggle, onDelete }: Props) {
+export default function TaskCard({ task, onToggle, onDelete, onEdit }: Props) {
+  const [editing, setEditing] = useState(false);
+  const [editText, setEditText] = useState(task.text);
+  const [editDueDate, setEditDueDate] = useState(task.dueDate || '');
+
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: task.id });
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.4 : 1,
+  };
+
+  const handleSave = () => {
+    onEdit(task.id, editText.trim() || task.text, editDueDate || undefined);
+    setEditing(false);
+  };
+
+  const handleCancel = () => {
+    setEditText(task.text);
+    setEditDueDate(task.dueDate || '');
+    setEditing(false);
   };
 
   return (
@@ -56,10 +73,10 @@ export default function TaskCard({ task, onToggle, onDelete }: Props) {
       exit={{ opacity: 0, x: -20 }}
       transition={{ duration: 0.18 }}
       className={`flex items-center gap-2 sm:gap-3 py-3 border-b border-gray-100 last:border-none border-l-4 transition-colors
-      ${!task.completed && task.dueDate && isOverdue(task.dueDate)
-        ? 'border-l-red-400 pl-2'
-        : 'border-l-transparent'
-      }`}
+        ${!task.completed && task.dueDate && isOverdue(task.dueDate)
+          ? 'border-l-red-400 pl-2'
+          : 'border-l-transparent'
+        }`}
     >
       <button
         {...attributes}
@@ -97,23 +114,73 @@ export default function TaskCard({ task, onToggle, onDelete }: Props) {
         </AnimatePresence>
       </button>
 
-      <div className="flex-1 min-w-0 flex flex-col gap-0.5">
-        <span className={`text-sm truncate transition-colors duration-200 ${task.completed ? 'line-through text-gray-400' : 'text-gray-700'}`}>
-          {task.text}
-        </span>
-        {task.dueDate && (() => {
-          const { label, color } = formatDue(task.dueDate);
-          return (
-            <span className={`text-xs ${task.completed ? 'text-gray-300' : color}`}>
-              {label}
+      <div className="flex-1 min-w-0 flex flex-col gap-1">
+        {editing ? (
+          <>
+            <input
+              value={editText}
+              onChange={e => setEditText(e.target.value)}
+              onKeyDown={e => {
+                if (e.key === 'Enter') handleSave();
+                if (e.key === 'Escape') handleCancel();
+              }}
+              autoFocus
+              className="w-full text-sm border border-teal-400 rounded px-2 py-0.5 outline-none bg-white text-gray-700"
+            />
+            <input
+              type="date"
+              value={editDueDate}
+              onChange={e => setEditDueDate(e.target.value)}
+              className="w-full text-xs border border-gray-200 rounded px-2 py-0.5 outline-none text-gray-500"
+            />
+            <div className="flex gap-2 mt-1">
+              <button
+                onClick={handleSave}
+                className="text-xs px-2 py-0.5 bg-teal-500 text-white rounded hover:bg-teal-600 transition-colors"
+              >
+                Save
+              </button>
+              <button
+                onClick={handleCancel}
+                className="text-xs px-2 py-0.5 bg-gray-100 text-gray-500 rounded hover:bg-gray-200 transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </>
+        ) : (
+          <>
+            <span className={`text-sm truncate transition-colors duration-200
+              ${task.completed ? 'line-through text-gray-400' : 'text-gray-700'}`}>
+              {task.text}
             </span>
-          );
-        })()}
+            {task.dueDate && (() => {
+              const { label, color } = formatDue(task.dueDate);
+              return (
+                <span className={`text-xs ${task.completed ? 'text-gray-300' : color}`}>
+                  {label}
+                </span>
+              );
+            })()}
+          </>
+        )}
       </div>
 
       <span className={`text-xs px-2 py-0.5 rounded-full capitalize shrink-0 hidden sm:inline ${priorityStyles[task.priority]}`}>
         {task.priority}
       </span>
+
+      {!task.completed && !editing && (
+        <button
+          onClick={() => setEditing(true)}
+          className="text-gray-300 hover:text-teal-400 transition-colors shrink-0"
+          aria-label="Edit task"
+        >
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536M9 13l6.586-6.586a2 2 0 012.828 2.828L11.828 15.828a2 2 0 01-1.414.586H9v-2a2 2 0 01.586-1.414z" />
+          </svg>
+        </button>
+      )}
 
       <button
         onClick={() => onDelete(task.id)}

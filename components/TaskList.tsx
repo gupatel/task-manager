@@ -11,9 +11,10 @@ interface Props {
   onToggle: (id: string) => void;
   onDelete: (id: string) => void;
   onReorder: (activeId: string, overId: string) => void;
+  onEdit: (id: string, newText: string) => void;
 }
 
-export default function TaskList({ tasks, onToggle, onDelete, onReorder }: Props) {
+export default function TaskList({ tasks, onToggle, onDelete, onReorder, onEdit }: Props) {
   const sensors = useSensors(useSensor(PointerSensor));
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -45,6 +46,7 @@ export default function TaskList({ tasks, onToggle, onDelete, onReorder }: Props
               task={task}
               onToggle={onToggle}
               onDelete={onDelete}
+              onEdit={onEdit}
             />
           ))}
         </AnimatePresence>

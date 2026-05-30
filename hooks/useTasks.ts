@@ -36,6 +36,12 @@ export function useTasks() {
     setTasks(prev => prev.filter(t => t.id !== id));
   };
 
+  const editTask = (id: string, newText: string, newDueDate?: string) => {
+    setTasks(prev =>
+      prev.map(t => t.id === id ? { ...t, text: newText, dueDate: newDueDate } : t)
+    );
+  };
+
   const clearCompleted = () => {
     setTasks(prev => prev.filter(t => !t.completed));
   };
@@ -85,5 +91,6 @@ export function useTasks() {
     remainingCount,
     totalCount: tasks.length,
     reorderTasks,
+    editTask,
   };
 }
