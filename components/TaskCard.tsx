@@ -20,7 +20,8 @@ const priorityStyles = {
 function formatDue(dateStr: string) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  const due = new Date(dateStr);
+  const [year, month, day] = dateStr.split('-').map(Number);
+  const due = new Date(year, month - 1, day);
   const diff = Math.ceil((due.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
   if (diff < 0) return { label: 'Overdue', color: 'text-red-500' };
   if (diff === 0) return { label: 'Due today', color: 'text-amber-500' };
