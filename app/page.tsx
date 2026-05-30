@@ -8,6 +8,7 @@ import FilterBar from '@/components/FilterBar';
 import TaskList from '@/components/TaskList';
 import ProgressBar from '@/components/ProgressBar';
 import ThemeToggle from '@/components/ThemeToggle';
+import Toast from '@/components/Toast';
 
 export default function Home() {
   const {
@@ -22,6 +23,8 @@ export default function Home() {
     totalCount,
     reorderTasks,
     editTask,
+    undoDelete,
+    deletedTask,
   } = useTasks();
 
   const prevRemainingRef = useRef(remainingCount);
@@ -48,7 +51,7 @@ export default function Home() {
     <main className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-start sm:items-center justify-center p-4 pt-8 sm:pt-4 transition-colors duration-200">
       <div className="w-full max-w-lg bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-4 sm:p-6">
         <div className="flex items-center justify-between mb-5">
-          <h1 className="text-lg sm:text-xl font-semibold text-gray-800 dark:text-gray-100">My tasks</h1>
+          <h1 className="text-lg sm:text-xl font-semibold text-gray-800 dark:text-gray-100">My Tasks</h1>
           <div className="flex items-center gap-2">
             <ThemeToggle />
             <span className="text-xs bg-brand-light text-brand-text px-3 py-1 rounded-full">
@@ -78,6 +81,11 @@ export default function Home() {
           </button>
         </div>
       </div>
+      <Toast
+        visible={!!deletedTask}
+        message={`"${deletedTask?.text}" deleted`}
+        onUndo={undoDelete}
+      />
     </main>
   );
 }

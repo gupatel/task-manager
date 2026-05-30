@@ -1,9 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react'; // ← add useRef
 import { Task, Filter, Priority } from '@/types/task';
 
 export function useTasks() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [filter, setFilter] = useState<Filter>('all');
+  const [deletedTask, setDeletedTask] = useState<Task | null>(null); // ← add
+  const undoTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null); // ← add
 
   useEffect(() => {
     const stored = localStorage.getItem('tasks');
@@ -33,7 +35,24 @@ export function useTasks() {
   };
 
   const deleteTask = (id: string) => {
+    const task = tasks.find(t => t.id === id);
+    if (!task) return;
+
     setTasks(prev => prev.filter(t => t.id !== id));
+    setDeletedTask(task); // ← store deleted task
+
+    // auto-clear after 4 seconds
+    if (undoTimerRef.current) clearTimeout(undoTimerRef.current);
+    undoTimerRef.current = setTimeout(() => {
+      setDeletedTask(null);
+    }, 4000);
+  };
+
+  const undoDelete = () => {
+    if (!deletedTask) return;
+    setTasks(prev => [deletedTask, ...prev]);
+    setDeletedTask(null);
+    if (undoTimerRef.current) clearTimeout(undoTimerRef.current);
   };
 
   const editTask = (id: string, newText: string, newDueDate?: string) => {
@@ -58,25 +77,18 @@ export function useTasks() {
   };
 
   const filteredTasks = tasks
-  .filter(t => {
-    if (filter === 'active') return !t.completed;
-    if (filter === 'completed') return t.completed;
-    return true;
-  })
-  .sort((a, b) => {
-    // completed tasks always go to bottom
-    if (a.completed !== b.completed) return a.completed ? 1 : -1;
-
-    // both have no due date — sort by createdAt
-    if (!a.dueDate && !b.dueDate) return a.createdAt - b.createdAt;
-
-    // no due date goes after tasks with due date
-    if (!a.dueDate) return 1;
-    if (!b.dueDate) return -1;
-
-    // both have due dates — sort earliest first (overdue at top)
-    return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
-  });
+    .filter(t => {
+      if (filter === 'active') return !t.completed;
+      if (filter === 'completed') return t.completed;
+      return true;
+    })
+    .sort((a, b) => {
+      if (a.completed !== b.completed) return a.completed ? 1 : -1;
+      if (!a.dueDate && !b.dueDate) return a.createdAt - b.createdAt;
+      if (!a.dueDate) return 1;
+      if (!b.dueDate) return -1;
+      return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
+    });
 
   const remainingCount = tasks.filter(t => !t.completed).length;
 
@@ -87,6 +99,8 @@ export function useTasks() {
     addTask,
     toggleTask,
     deleteTask,
+    undoDelete,       // ← add
+    deletedTask,      // ← add
     clearCompleted,
     remainingCount,
     totalCount: tasks.length,
