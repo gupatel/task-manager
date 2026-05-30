@@ -1,11 +1,11 @@
-import { useState, useEffect, useRef } from 'react'; // ← add useRef
+import { useState, useEffect, useRef } from 'react';
 import { Task, Filter, Priority } from '@/types/task';
 
-export function useTasks() {
+export function useTasks(activeListId: string) { // ← add param
   const [tasks, setTasks] = useState<Task[]>([]);
   const [filter, setFilter] = useState<Filter>('all');
-  const [deletedTask, setDeletedTask] = useState<Task | null>(null); // ← add
-  const undoTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null); // ← add
+  const [deletedTask, setDeletedTask] = useState<Task | null>(null);
+  const undoTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     const stored = localStorage.getItem('tasks');
@@ -16,6 +16,11 @@ export function useTasks() {
     localStorage.setItem('tasks', JSON.stringify(tasks));
   }, [tasks]);
 
+  // reset filter when switching lists
+  useEffect(() => {
+    setFilter('all');
+  }, [activeListId]);
+
   const addTask = (text: string, priority: Priority, dueDate?: string) => {
     const newTask: Task = {
       id: crypto.randomUUID(),
@@ -24,6 +29,7 @@ export function useTasks() {
       priority,
       dueDate: dueDate || undefined,
       createdAt: Date.now(),
+      listId: activeListId, // ← add this
     };
     setTasks(prev => [newTask, ...prev]);
   };
@@ -37,15 +43,10 @@ export function useTasks() {
   const deleteTask = (id: string) => {
     const task = tasks.find(t => t.id === id);
     if (!task) return;
-
     setTasks(prev => prev.filter(t => t.id !== id));
-    setDeletedTask(task); // ← store deleted task
-
-    // auto-clear after 4 seconds
+    setDeletedTask(task);
     if (undoTimerRef.current) clearTimeout(undoTimerRef.current);
-    undoTimerRef.current = setTimeout(() => {
-      setDeletedTask(null);
-    }, 4000);
+    undoTimerRef.current = setTimeout(() => setDeletedTask(null), 4000);
   };
 
   const undoDelete = () => {
@@ -62,7 +63,7 @@ export function useTasks() {
   };
 
   const clearCompleted = () => {
-    setTasks(prev => prev.filter(t => !t.completed));
+    setTasks(prev => prev.filter(t => !(t.completed && t.listId === activeListId)));
   };
 
   const reorderTasks = (activeId: string, overId: string) => {
@@ -76,7 +77,10 @@ export function useTasks() {
     });
   };
 
-  const filteredTasks = tasks
+  // filter tasks by active list
+  const listTasks = tasks.filter(t => t.listId === activeListId);
+
+  const filteredTasks = listTasks
     .filter(t => {
       if (filter === 'active') return !t.completed;
       if (filter === 'completed') return t.completed;
@@ -90,7 +94,7 @@ export function useTasks() {
       return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
     });
 
-  const remainingCount = tasks.filter(t => !t.completed).length;
+  const remainingCount = listTasks.filter(t => !t.completed).length;
 
   return {
     tasks: filteredTasks,
@@ -99,11 +103,11 @@ export function useTasks() {
     addTask,
     toggleTask,
     deleteTask,
-    undoDelete,       // ← add
-    deletedTask,      // ← add
+    undoDelete,
+    deletedTask,
     clearCompleted,
     remainingCount,
-    totalCount: tasks.length,
+    totalCount: listTasks.length,
     reorderTasks,
     editTask,
   };

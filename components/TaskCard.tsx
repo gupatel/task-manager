@@ -14,9 +14,9 @@ interface Props {
 }
 
 const priorityStyles = {
-  high: 'bg-red-50 text-red-800',
-  medium: 'bg-amber-50 text-amber-800',
-  low: 'bg-green-50 text-green-800',
+  high: 'bg-red-50 text-red-800 dark:bg-red-900/30 dark:text-red-400',
+  medium: 'bg-amber-50 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400',
+  low: 'bg-green-50 text-green-800 dark:bg-green-900/30 dark:text-green-400',
 };
 
 function isOverdue(dateStr: string): boolean {
@@ -72,7 +72,7 @@ export default function TaskCard({ task, onToggle, onDelete, onEdit }: Props) {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, x: -20 }}
       transition={{ duration: 0.18 }}
-      className={`flex items-center gap-2 sm:gap-3 py-3 border-b border-gray-100 last:border-none border-l-4 transition-colors
+      className={`flex items-center gap-2 sm:gap-3 py-3 border-b border-gray-100 dark:border-gray-700 last:border-none border-l-4 transition-colors
         ${!task.completed && task.dueDate && isOverdue(task.dueDate)
           ? 'border-l-red-400 pl-2'
           : 'border-l-transparent'
@@ -81,7 +81,7 @@ export default function TaskCard({ task, onToggle, onDelete, onEdit }: Props) {
       <button
         {...attributes}
         {...listeners}
-        className="text-gray-200 hover:text-gray-400 cursor-grab active:cursor-grabbing shrink-0"
+        className="text-gray-200 hover:text-gray-400 dark:text-gray-600 dark:hover:text-gray-400 cursor-grab active:cursor-grabbing shrink-0"
         aria-label="Drag to reorder"
       >
         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -92,7 +92,7 @@ export default function TaskCard({ task, onToggle, onDelete, onEdit }: Props) {
       <button
         onClick={() => onToggle(task.id)}
         className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors
-          ${task.completed ? 'bg-teal-500 border-teal-500' : 'border-gray-300 hover:border-brand'}`}
+          ${task.completed ? 'bg-teal-500 border-teal-500' : 'border-gray-300 dark:border-gray-600 hover:border-brand'}`}
         aria-label={task.completed ? 'Mark incomplete' : 'Mark complete'}
       >
         <AnimatePresence>
@@ -125,13 +125,13 @@ export default function TaskCard({ task, onToggle, onDelete, onEdit }: Props) {
                 if (e.key === 'Escape') handleCancel();
               }}
               autoFocus
-              className="w-full text-sm border border-teal-400 rounded px-2 py-0.5 outline-none bg-white text-gray-700"
+              className="w-full text-sm border border-teal-400 rounded px-2 py-0.5 outline-none bg-white dark:bg-gray-700 dark:text-gray-200 dark:border-teal-500"
             />
             <input
               type="date"
               value={editDueDate}
               onChange={e => setEditDueDate(e.target.value)}
-              className="w-full text-xs border border-gray-200 rounded px-2 py-0.5 outline-none text-gray-500"
+              className="w-full text-xs border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-400 rounded px-2 py-0.5 outline-none"
             />
             <div className="flex gap-2 mt-1">
               <button
@@ -142,7 +142,7 @@ export default function TaskCard({ task, onToggle, onDelete, onEdit }: Props) {
               </button>
               <button
                 onClick={handleCancel}
-                className="text-xs px-2 py-0.5 bg-gray-100 text-gray-500 rounded hover:bg-gray-200 transition-colors"
+                className="text-xs px-2 py-0.5 bg-gray-100 dark:bg-gray-600 text-gray-500 dark:text-gray-300 rounded hover:bg-gray-200 dark:hover:bg-gray-500 transition-colors"
               >
                 Cancel
               </button>
@@ -151,13 +151,16 @@ export default function TaskCard({ task, onToggle, onDelete, onEdit }: Props) {
         ) : (
           <>
             <span className={`text-sm truncate transition-colors duration-200
-              ${task.completed ? 'line-through text-gray-400' : 'text-gray-700'}`}>
+              ${task.completed
+                ? 'line-through text-gray-400 dark:text-gray-500'
+                : 'text-gray-700 dark:text-gray-200'
+              }`}>
               {task.text}
             </span>
             {task.dueDate && (() => {
               const { label, color } = formatDue(task.dueDate);
               return (
-                <span className={`text-xs ${task.completed ? 'text-gray-300' : color}`}>
+                <span className={`text-xs ${task.completed ? 'text-gray-300 dark:text-gray-600' : color}`}>
                   {label}
                 </span>
               );
@@ -173,7 +176,7 @@ export default function TaskCard({ task, onToggle, onDelete, onEdit }: Props) {
       {!task.completed && !editing && (
         <button
           onClick={() => setEditing(true)}
-          className="text-gray-300 hover:text-teal-400 transition-colors shrink-0"
+          className="text-gray-300 hover:text-teal-400 dark:text-gray-600 dark:hover:text-teal-400 transition-colors shrink-0"
           aria-label="Edit task"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -184,7 +187,7 @@ export default function TaskCard({ task, onToggle, onDelete, onEdit }: Props) {
 
       <button
         onClick={() => onDelete(task.id)}
-        className="text-gray-300 hover:text-red-400 transition-colors shrink-0"
+        className="text-gray-300 hover:text-red-400 dark:text-gray-600 dark:hover:text-red-400 transition-colors shrink-0"
         aria-label="Delete task"
       >
         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
